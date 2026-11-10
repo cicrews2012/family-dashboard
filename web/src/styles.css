@@ -1,0 +1,145 @@
+:root {
+  --paper: #f6f1e7;
+  --ink: #2b2620;
+  --muted: #7b7163;
+  --line: #e4dccd;
+  --card: #fffdf8;
+  --accent: #2b2620;
+  --bad: #b3261e;
+  font-family: "Nunito", ui-rounded, system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-text-size-adjust: 100%;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; min-height: 100%; background: var(--paper); }
+body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; }
+
+.app {
+  min-height: 100vh;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  transition: filter 1s;
+}
+.app.night { filter: brightness(0.45) saturate(0.7); }
+
+/* Header ------------------------------------------------------------ */
+.header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+.clock { font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -0.5px; }
+.date { font-size: 18px; color: var(--muted); font-weight: 700; margin-top: 4px; }
+.next {
+  justify-self: center;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 17px;
+  max-width: 100%;
+}
+.next-label { color: var(--muted); font-weight: 700; }
+.next-dot { width: 12px; height: 12px; border-radius: 50%; }
+.next-title { font-weight: 800; }
+.next-time { color: var(--muted); }
+.controls { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.seg { display: inline-flex; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 3px; }
+.seg button { border: 0; background: none; padding: 8px 16px; border-radius: 9px; font-weight: 700; font-size: 16px; color: var(--muted); }
+.seg button.on { background: var(--accent); color: var(--paper); }
+.status { border: 0; background: none; font-size: 13px; color: var(--muted); padding: 2px 4px; }
+.status.bad { color: var(--bad); font-weight: 700; }
+
+.loading { text-align: center; color: var(--muted); font-size: 18px; margin-top: 15vh; }
+
+/* Today board -------------------------------------------------------- */
+.board-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.board-tabs button {
+  border: 1px solid var(--line); background: var(--card); border-radius: 999px;
+  padding: 6px 14px; font-weight: 700; font-size: 15px; color: var(--muted);
+}
+.board-tabs button.on { border-color: var(--accent); color: var(--ink); }
+
+.notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+.note {
+  min-height: 260px;
+  border-radius: 6px 6px 18px 6px;
+  padding: 18px 18px 22px;
+  box-shadow: 0 1px 1px rgba(60, 45, 20, 0.08), 0 8px 18px rgba(60, 45, 20, 0.12);
+  position: relative;
+}
+.note::before {
+  content: ""; position: absolute; top: -9px; left: 50%; width: 70px; height: 20px; margin-left: -35px;
+  background: rgba(255, 255, 255, 0.55); border-radius: 3px; transform: rotate(-2deg);
+}
+.note h2 { margin: 0 0 12px; font-size: 26px; font-weight: 800; }
+.note ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.note li { display: flex; flex-direction: column; }
+.note .t { font-size: 14px; font-weight: 800; opacity: 0.75; }
+.note .what { font-size: 20px; font-weight: 700; line-height: 1.25; }
+.note .icon { margin-right: 6px; }
+.note .where { font-size: 14px; opacity: 0.75; }
+.note .empty { font-size: 18px; opacity: 0.6; margin: 8px 0 0; }
+
+/* Week view ---------------------------------------------------------- */
+.week {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+.day {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 10px;
+  min-height: 300px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.day.is-today { border: 2px solid var(--accent); }
+.day h3 { margin: 0 0 6px; display: flex; align-items: baseline; justify-content: space-between; }
+.day .dow { font-size: 16px; font-weight: 800; }
+.day .dnum { font-size: 24px; font-weight: 800; color: var(--muted); }
+.day .empty { color: var(--line); margin: 0; font-size: 20px; }
+.chip { border-radius: 8px; padding: 6px 8px; display: flex; flex-direction: column; line-height: 1.2; }
+.chip.past { opacity: 0.45; }
+.chip .t { font-size: 12px; font-weight: 800; opacity: 0.75; }
+.chip .what { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+.chip .who { font-size: 11px; font-weight: 700; opacity: 0.7; }
+
+/* Key prompt --------------------------------------------------------- */
+.keyprompt { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+.keyprompt form {
+  width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line);
+  border-radius: 18px; padding: 28px;
+}
+.keyprompt h1 { margin: 0 0 8px; font-size: 28px; }
+.keyprompt p { color: var(--muted); margin: 0 0 16px; }
+.keyprompt input {
+  width: 100%; font: inherit; font-size: 18px; padding: 12px 14px; border-radius: 10px;
+  border: 1px solid var(--line); background: #fff;
+}
+.keyprompt .row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.keyprompt button { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 10px 16px; font-weight: 700; }
+.keyprompt button.primary { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+.bad { color: var(--bad) !important; }
+.small { font-size: 14px; margin: 8px 0 0 !important; }
+
+/* Phones ------------------------------------------------------------- */
+@media (max-width: 720px) {
+  .header { grid-template-columns: 1fr auto; gap: 12px; }
+  .next { grid-column: 1 / -1; grid-row: 2; justify-self: stretch; border-radius: 14px; }
+  .clock { font-size: 34px; }
+  .note { min-height: 0; transform: none !important; }
+  .week { grid-template-columns: 1fr; }
+  .day { min-height: 0; }
+}

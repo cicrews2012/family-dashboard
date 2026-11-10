@@ -1,0 +1,59 @@
+import { countdown, formatTime, upNext, type DashEvent } from "../logic.ts";
+
+export type View = "today" | "week";
+
+interface Props {
+  now: Date;
+  events: DashEvent[];
+  view: View;
+  onView: (v: View) => void;
+  demo: boolean;
+  loading: boolean;
+  error: string | null;
+  fetchedAt: string | null;
+  onRefresh: () => void;
+}
+
+export function Header({ now, events, view, onView, demo, loading, error, fetchedAt, onRefresh }: Props) {
+  const next = upNext(events, now);
+  const updated = fetchedAt ? formatTime(new Date(fetchedAt)) : null;
+  return (
+    <header className="header">
+      <div className="when">
+        <div className="clock">{formatTime(now)}</div>
+        <div className="date">{now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
+      </div>
+
+      <div className="next">
+        {next ? (
+          <>
+            <span className="next-label">Up next</span>
+            <span className="next-dot" style={{ background: next.person.chip }} />
+            <span className="next-title">
+              {next.person.name}: {next.title}
+            </span>
+            <span className="next-time">
+              {formatTime(next.startDate)} · {countdown(next.startDate, now)}
+            </span>
+          </>
+        ) : (
+          <span className="next-label">Nothing else coming up today</span>
+        )}
+      </div>
+
+      <div className="controls">
+        <div className="seg" role="tablist">
+          <button role="tab" aria-selected={view === "today"} className={view === "today" ? "on" : ""} onClick={() => onView("today")}>
+            Today
+          </button>
+          <button role="tab" aria-selected={view === "week"} className={view === "week" ? "on" : ""} onClick={() => onView("week")}>
+            Week
+          </button>
+        </div>
+        <button className={`status${error ? " bad" : ""}`} onClick={onRefresh} title="Refresh now">
+          {demo ? "Demo data" : loading ? "Updating…" : error ? `Offline · ${updated ?? "no data"}` : updated ? `Updated ${updated}` : ""}
+        </button>
+      </div>
+    </header>
+  );
+}
