@@ -83,11 +83,31 @@ export function formatTime(d: Date): string {
   return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).replace(/\s?([AP]M)$/i, (_, ap: string) => ap.toLowerCase());
 }
 
-/** "9:00am", "All day", or "until 11am" for events that started on an earlier day. */
+/** "9:00 – 10:30am", "11:30am – 1:00pm", "All day", or "until 11:00am" for events continuing from an earlier day. */
 export function timeLabel(ev: DashEvent, day: Date): string {
   if (ev.allDay) return "All day";
-  if (ev.startDate < startOfDay(day)) return `until ${formatTime(ev.endDate)}`;
-  return formatTime(ev.startDate);
+  const dayStart = startOfDay(day);
+  const dayEnd = addDays(dayStart, 1);
+  const startsEarlier = ev.startDate < dayStart;
+  const endsLater = ev.endDate > dayEnd;
+  if (startsEarlier && endsLater) return "All day";
+  if (startsEarlier) return `until ${formatTime(ev.endDate)}`;
+  return timeRange(ev.startDate, ev.endDate);
+}
+
+export function timeRange(start: Date, end: Date): string {
+  const s = formatTime(start);
+  if (end.getTime() - start.getTime() < 60_000) return s;
+  const e = formatTime(end);
+  return s.slice(-2) === e.slice(-2) ? `${s.slice(0, -2)} – ${e}` : `${s} – ${e}`;
+}
+
+/** "Today", "Tomorrow", or "Fri, Nov 13". */
+export function dayHeading(day: Date, today: Date): string {
+  const diff = Math.round((startOfDay(day).getTime() - startOfDay(today).getTime()) / 86_400_000);
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Tomorrow";
+  return day.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
 }
 
 /** Next timed event starting in the next 24 hours. */

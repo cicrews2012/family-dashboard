@@ -78,3 +78,23 @@ test("month grid covers whole weeks, Sunday first", () => {
   const feb = monthGrid(new Date(2026, 1, 1));
   assert.ok(feb.length >= 28 && feb.length <= 42);
 });
+
+import { timeRange, dayHeading } from "../src/logic.ts";
+test("time ranges share am/pm when they can", () => {
+  assert.equal(timeRange(new Date(2026, 10, 10, 9, 0), new Date(2026, 10, 10, 10, 30)), "9:00 – 10:30am");
+  assert.equal(timeRange(new Date(2026, 10, 10, 11, 30), new Date(2026, 10, 10, 13, 0)), "11:30am – 1:00pm");
+  assert.equal(timeRange(new Date(2026, 10, 10, 9, 0), new Date(2026, 10, 10, 9, 0)), "9:00am");
+});
+test("overnight event starting today shows its range", () => {
+  const s = new Date(2026, 10, 10, 22, 0), e = new Date(2026, 10, 11, 2, 0);
+  const evs = prepare({ labels, fetchedAt: "", events: [
+    { id: "o", title: "Flight", start: s.toISOString(), end: e.toISOString(), allDay: false, location: null, labelId: "a" },
+  ]});
+  assert.equal(timeLabel(evs[0], new Date(2026, 10, 10)), "10:00pm – 2:00am");
+});
+test("day headings", () => {
+  const t = new Date(2026, 10, 11);
+  assert.equal(dayHeading(t, t), "Today");
+  assert.equal(dayHeading(new Date(2026, 10, 12), t), "Tomorrow");
+  assert.match(dayHeading(new Date(2026, 10, 13), t), /Fri/);
+});

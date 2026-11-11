@@ -29,6 +29,9 @@ export const UNLABELED_PERSON = "family";
 /** How often to refresh while the screen is on. */
 export const REFRESH_MS = 60 * 1000;
 
+/** Days shown on the name cards in "Next days" mode, starting today. */
+export const UPCOMING_DAYS = 5;
+
 /** Days shown in the week view, starting today. */
 export const WEEK_DAYS = 7;
 

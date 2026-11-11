@@ -4,7 +4,7 @@ import { NIGHT_END, NIGHT_START, REFRESH_MS, WEEK_DAYS } from "./config.ts";
 import { demoData } from "./demo.ts";
 import { addDays, isNight, monthGrid, prepare, startOfDay, type ApiResponse } from "./logic.ts";
 import { Header, type View } from "./components/Header.tsx";
-import { TodayBoard } from "./components/TodayBoard.tsx";
+import { TodayBoard, type BoardMode } from "./components/TodayBoard.tsx";
 import { WeekView } from "./components/WeekView.tsx";
 import { MonthView } from "./components/MonthView.tsx";
 import { KeyPrompt } from "./components/KeyPrompt.tsx";
@@ -46,7 +46,21 @@ export default function App() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<View>("today");
-  const [boardOffset, setBoardOffset] = useState(0);
+  const [boardMode, setBoardModeState] = useState<BoardMode>(() => {
+    try {
+      return localStorage.getItem("fd.boardMode") === "upcoming" ? "upcoming" : "today";
+    } catch {
+      return "today";
+    }
+  });
+  const setBoardMode = (m: BoardMode) => {
+    setBoardModeState(m);
+    try {
+      localStorage.setItem("fd.boardMode", m);
+    } catch {
+      /* storage blocked */
+    }
+  };
   const [monthOffset, setMonthOffset] = useState(0);
   const [monthData, setMonthData] = useState<{ key: string; data: ApiResponse } | null>(null);
   const now = useNow();
@@ -177,7 +191,7 @@ export default function App() {
       {!data && !error && <p className="loading">Loading the calendar…</p>}
       {!data && error && <p className="loading">{error}</p>}
       {data && view === "today" && (
-        <TodayBoard events={events} day={addDays(today, boardOffset)} offset={boardOffset} onOffset={setBoardOffset} />
+        <TodayBoard events={events} today={today} mode={boardMode} onMode={setBoardMode} />
       )}
       {data && view === "week" && <WeekView events={events} today={today} now={now} />}
       {data && view === "month" && (
