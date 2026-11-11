@@ -199,7 +199,9 @@ async function authCallback(req: Request, url: URL, env: Env): Promise<Response>
     mealsHtml =
       m.status === "ok"
         ? `<p>Meals sheet: connected (${m.items.length} meal${m.items.length === 1 ? "" : "s"} listed).</p>`
-        : `<p class="warn">Meals sheet: couldn't read it (${esc(m.status)}). Check that the Sheets API is enabled and the sheet is in this Google account.</p>`;
+        : `<p class="warn">Meals sheet: couldn't read it (${esc(m.status)}).${
+            "detail" in m && m.detail ? `<br>Google says: <i>${esc(m.detail)}</i>` : ""
+          }</p>`;
   }
 
   const res2 = html(`
@@ -348,7 +350,7 @@ export interface Meal {
 
 type MealsResult =
   | { status: "ok"; items: Meal[] }
-  | { status: "off" | "needs-permission" | "not-found" | "error"; items: [] };
+  | { status: "off" | "needs-permission" | "not-found" | "error"; items: []; detail?: string };
 
 async function fetchMeals(env: Env, accessToken: string): Promise<MealsResult> {
   if (!env.SHEET_ID) return { status: "off", items: [] };
@@ -360,8 +362,12 @@ async function fetchMeals(env: Env, accessToken: string): Promise<MealsResult> {
     // Prefer a tab named "Meals"; fall back to the first tab.
     let res = await get("Meals!A1:C60");
     if (res.status === 400) res = await get("A1:C60");
-    if (res.status === 403) return { status: "needs-permission", items: [] };
-    if (res.status === 404) return { status: "not-found", items: [] };
+    if (res.status === 403 || res.status === 404) {
+      // Google's own explanation, e.g. "Google Sheets API has not been used in project … or it is disabled"
+      const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
+      const detail = body?.error?.message?.slice(0, 300);
+      return { status: res.status === 403 ? "needs-permission" : "not-found", items: [], detail };
+    }
     if (!res.ok) {
       console.error("Sheets API error", res.status, (await res.text().catch(() => "")).slice(0, 300));
       return { status: "error", items: [] };
