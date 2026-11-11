@@ -29,7 +29,7 @@ const CAL_API = "https://www.googleapis.com/calendar/v3";
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 
-const EVENT_CACHE_MS = 60_000; // many screens waking at once -> one Google call
+const EVENT_CACHE_MS = 30_000; // many screens waking at once -> one Google call
 const MAX_RANGE_DAYS = 62;
 
 // Per-isolate caches (best effort; Workers may recycle isolates at any time).

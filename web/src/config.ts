@@ -25,7 +25,7 @@ export const PEOPLE: Person[] = [
 export const UNLABELED_PERSON = "family";
 
 /** How often to refresh while the screen is on. */
-export const REFRESH_MS = 5 * 60 * 1000;
+export const REFRESH_MS = 60 * 1000;
 
 /** Days shown in the week view, starting today. */
 export const WEEK_DAYS = 7;

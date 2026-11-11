@@ -70,7 +70,7 @@ GitHub repo → Settings → Secrets and variables → Actions → **Variables**
 
 ## Everyday use
 - Add events in Google Calendar and pick the person's color. Unlabeled events show under **Family**.
-- The screen refreshes every 5 minutes and right away when it wakes.
+- The screen refreshes every minute and right away when it wakes.
 - It dims between 9pm and 6am.
 
 ## Customizing
