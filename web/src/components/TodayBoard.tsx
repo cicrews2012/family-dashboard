@@ -20,12 +20,18 @@ function EventItem({ e, day, person }: { e: DashEvent; day: Date; person: Person
   return (
     <li>
       <button className="ev-btn" onClick={() => open(e, day)}>
-      <span className="t">{timeLabel(e, day)}</span>
+      <span className="t">
+        {timeLabel(e, day)}
+        {e.location && (
+          <span className="pin" title="Has a location: tap to see it" aria-label="has a location">
+            {" "}· 📍
+          </span>
+        )}
+      </span>
       <span className="what">
         {icon && <span className="icon" aria-hidden="true">{icon}</span>}
         {e.title}
       </span>
-      {e.location && <span className="where">📍 {e.location}</span>}
       </button>
     </li>
   );
