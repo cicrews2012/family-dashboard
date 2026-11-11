@@ -1,10 +1,13 @@
 name = "family-dashboard-api"
 main = "src/index.ts"
 compatibility_date = "2026-10-01"
+# Never delete settings added in the Cloudflare dashboard on deploy.
+keep_vars = true
 
 # Non-secret settings. Secrets (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
 # GOOGLE_REFRESH_TOKEN, SETUP_KEY, DEVICE_KEYS) are set in the Cloudflare
-# dashboard: Worker -> Settings -> Variables and Secrets.
+# dashboard: Worker -> Settings -> Variables and Secrets, with Type = SECRET
+# (never "Text": text values are printed in deploy logs).
 [vars]
 CALENDAR_ID = "6089dc8bced1189d3098fcf7f6f71c9ee50ff19aa3af04862b9f01ed29585e2d@group.calendar.google.com"
 ALLOWED_ORIGINS = "https://cicrews2012.github.io"

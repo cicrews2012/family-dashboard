@@ -42,7 +42,7 @@ Push to `main` (or run both workflows from the Actions tab). The Worker deploys 
 `https://family-dashboard-api.<your-subdomain>.workers.dev`.
 
 ### 5. Worker secrets
-Cloudflare dashboard → Workers → `family-dashboard-api` → Settings → Variables and Secrets. Add these as **Secrets**:
+Cloudflare dashboard → Workers → `family-dashboard-api` → Settings → Variables and Secrets. Add these with **Type: Secret** (not Text: Text values show up in deploy logs and get replaced on deploy):
 
 | Name | Value |
 |---|---|
