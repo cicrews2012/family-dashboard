@@ -98,3 +98,11 @@ test("day headings", () => {
   assert.equal(dayHeading(new Date(2026, 10, 12), t), "Tomorrow");
   assert.match(dayHeading(new Date(2026, 10, 13), t), /Fri/);
 });
+
+import { mealsOn } from "../src/logic.ts";
+test("meals map to dates by weekday", () => {
+  const meals = [{ day: 3, meal: "Tacos", notes: null }, { day: null, meal: "Leftovers", notes: null }];
+  assert.deepEqual(mealsOn(meals, new Date(2026, 10, 11)).map((m) => m.meal), ["Tacos"]); // Wed
+  assert.deepEqual(mealsOn(meals, new Date(2026, 10, 12)), []);
+  assert.deepEqual(mealsOn(null, new Date(2026, 10, 11)), []);
+});

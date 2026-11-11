@@ -76,6 +76,19 @@ GitHub repo → Settings → Secrets and variables → Actions → **Variables**
 - It dims between 9pm and 6am.
 - **Screen stays on** while the dashboard is open (on by default for tablets, off for phones). Tap the "Screen stays on / can sleep" button to change it per device. Press the power button to sleep it manually.
 
+## Meals
+The week's dinners come from the **Family dashboard** Google Sheet (ID in `worker/wrangler.toml` as `SHEET_ID`), on a tab named **Meals** (or the first tab):
+
+| Day | Meal | Notes |
+|---|---|---|
+| Sunday | Tacos | |
+| Monday | Chicken alfredo | Kids get plain pasta |
+
+- One row per night; overwrite it each week. Leave **Day** blank or write "Any" for a meal with no set night.
+- The dashboard shows **Tonight** on the name-card view, the next 7 nights under the cards, and each night's dinner at the top of the Week view.
+- Edits show up within about a minute.
+- One-time setup: enable the **Google Sheets API** in the Google Cloud project, add the `.../auth/spreadsheets.readonly` scope under Google Auth Platform → Data Access, then re-run `/setup` and replace `GOOGLE_REFRESH_TOKEN`.
+
 ## Versions and updates
 - The version shows in the top right: `v23 · api 8` means dashboard build 23 and API build 8 (GitHub Actions run numbers).
 - Open screens check for a new dashboard build every 5 minutes and when they wake, and reload themselves. No need to re-add to the Home Screen.

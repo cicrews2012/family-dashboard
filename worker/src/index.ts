@@ -23,9 +23,14 @@ export interface Env {
   SETUP_KEY: string;
   DEVICE_KEYS: string; // comma-separated
   API_VERSION?: string; // set by the deploy workflow
+  SHEET_ID?: string; // "Family dashboard" Google Sheet (Meals tab)
 }
 
-const SCOPE = "https://www.googleapis.com/auth/calendar.readonly";
+const SCOPE = [
+  "https://www.googleapis.com/auth/calendar.readonly",
+  "https://www.googleapis.com/auth/spreadsheets.readonly",
+].join(" ");
+const SHEETS_API = "https://sheets.googleapis.com/v4/spreadsheets";
 const CAL_API = "https://www.googleapis.com/calendar/v3";
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -188,9 +193,19 @@ async function authCallback(req: Request, url: URL, env: Env): Promise<Response>
     labelsHtml = `<p class="warn">Signed in, but reading the calendar failed: ${esc(String((e as Error).message))}</p>`;
   }
 
+  let mealsHtml = "";
+  if (env.SHEET_ID) {
+    const m = await fetchMeals(env, tok.access_token);
+    mealsHtml =
+      m.status === "ok"
+        ? `<p>Meals sheet: connected (${m.items.length} meal${m.items.length === 1 ? "" : "s"} listed).</p>`
+        : `<p class="warn">Meals sheet: couldn't read it (${esc(m.status)}). Check that the Sheets API is enabled and the sheet is in this Google account.</p>`;
+  }
+
   const res2 = html(`
     <h1>Signed in</h1>
     ${labelsHtml}
+    ${mealsHtml}
     <p><b>Last step:</b> in Cloudflare, open the <code>family-dashboard-api</code> Worker →
        Settings → Variables and Secrets → add a <b>Secret</b> named
        <code>GOOGLE_REFRESH_TOKEN</code> with this value, then deploy:</p>
@@ -222,11 +237,19 @@ async function eventsHandler(req: Request, url: URL, env: Env): Promise<Response
   }
 
   const accessToken = await getAccessToken(env);
-  const [labels, events] = await Promise.all([
+  const [labels, events, meals] = await Promise.all([
     fetchLabels(env, accessToken),
     fetchEvents(env, accessToken, start, end),
+    fetchMeals(env, accessToken), // never throws: the calendar keeps working if the sheet doesn't
   ]);
-  const body = JSON.stringify({ labels, events, fetchedAt: new Date().toISOString(), apiVersion: env.API_VERSION ?? "dev" });
+  const body = JSON.stringify({
+    labels,
+    events,
+    meals: meals.status === "ok" ? meals.items : null,
+    mealsStatus: meals.status,
+    fetchedAt: new Date().toISOString(),
+    apiVersion: env.API_VERSION ?? "dev",
+  });
 
   eventCache.set(cacheKey, { at: Date.now(), body });
   if (eventCache.size > 50) eventCache.delete(eventCache.keys().next().value as string);
@@ -310,6 +333,67 @@ export function normalizeLabels(cal: GCalendar): Label[] {
   return (cal.labelProperties?.eventLabels ?? [])
     .filter((l) => l.id)
     .map((l) => ({ id: String(l.id), name: (l.name ?? "").trim(), color: l.backgroundColor ?? null }));
+}
+
+/* ------------------------------------------------------------------ */
+/* Meals (Google Sheet)                                                */
+/* ------------------------------------------------------------------ */
+
+export interface Meal {
+  /** 0 = Sunday … 6 = Saturday, or null for "any night this week". */
+  day: number | null;
+  meal: string;
+  notes: string | null;
+}
+
+type MealsResult =
+  | { status: "ok"; items: Meal[] }
+  | { status: "off" | "needs-permission" | "not-found" | "error"; items: [] };
+
+async function fetchMeals(env: Env, accessToken: string): Promise<MealsResult> {
+  if (!env.SHEET_ID) return { status: "off", items: [] };
+  const get = (range: string) =>
+    fetch(`${SHEETS_API}/${encodeURIComponent(env.SHEET_ID!)}/values/${encodeURIComponent(range)}?majorDimension=ROWS`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  try {
+    // Prefer a tab named "Meals"; fall back to the first tab.
+    let res = await get("Meals!A1:C60");
+    if (res.status === 400) res = await get("A1:C60");
+    if (res.status === 403) return { status: "needs-permission", items: [] };
+    if (res.status === 404) return { status: "not-found", items: [] };
+    if (!res.ok) {
+      console.error("Sheets API error", res.status, (await res.text().catch(() => "")).slice(0, 300));
+      return { status: "error", items: [] };
+    }
+    const data = (await res.json()) as { values?: unknown[][] };
+    return { status: "ok", items: normalizeMeals(data.values ?? []) };
+  } catch (e) {
+    console.error("Sheets fetch failed", e);
+    return { status: "error", items: [] };
+  }
+}
+
+const DAY_NAMES = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+
+/** "Monday", "mon", "Tues", "THU" -> 1, 1, 2, 4. Blank or "any" -> null. Unknown -> undefined. */
+export function parseDay(value: string): number | null | undefined {
+  const v = value.trim().toLowerCase();
+  if (!v || v === "any" || v === "anytime" || v === "any night" || v === "flex") return null;
+  const i = DAY_NAMES.findIndex((d) => v.startsWith(d));
+  return i >= 0 ? i : undefined;
+}
+
+export function normalizeMeals(rows: unknown[][]): Meal[] {
+  const out: Meal[] = [];
+  for (const row of rows) {
+    const [dayRaw, mealRaw, notesRaw] = row.map((c) => (c == null ? "" : String(c).trim()));
+    if (!mealRaw) continue; // empty night, or the header's blank
+    if (dayRaw.toLowerCase() === "day" && mealRaw.toLowerCase() === "meal") continue; // header row
+    const day = parseDay(dayRaw ?? "");
+    out.push({ day: day === undefined ? null : day, meal: mealRaw, notes: notesRaw || null });
+  }
+  return out;
 }
 
 interface GEvent {

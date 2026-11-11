@@ -191,9 +191,9 @@ export default function App() {
       {!data && !error && <p className="loading">Loading the calendar…</p>}
       {!data && error && <p className="loading">{error}</p>}
       {data && view === "today" && (
-        <TodayBoard events={events} today={today} mode={boardMode} onMode={setBoardMode} />
+        <TodayBoard events={events} today={today} mode={boardMode} onMode={setBoardMode} meals={data.meals} />
       )}
-      {data && view === "week" && <WeekView events={events} today={today} now={now} />}
+      {data && view === "week" && <WeekView events={events} today={today} now={now} meals={data.meals} />}
       {data && view === "month" && (
         <MonthView events={monthEvents} month={monthStart} today={today} offset={monthOffset} onOffset={setMonthOffset} />
       )}

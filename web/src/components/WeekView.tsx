@@ -1,14 +1,15 @@
 import { WEEK_DAYS } from "../config.ts";
 import { colors } from "../theme.ts";
-import { addDays, eventsOnDay, kidIcon, timeLabel, type DashEvent } from "../logic.ts";
+import { addDays, eventsOnDay, kidIcon, mealsOn, timeLabel, type DashEvent, type Meal } from "../logic.ts";
 
 interface Props {
   events: DashEvent[];
   today: Date;
   now: Date;
+  meals?: Meal[] | null;
 }
 
-export function WeekView({ events, today, now }: Props) {
+export function WeekView({ events, today, now, meals }: Props) {
   const days = Array.from({ length: WEEK_DAYS }, (_, i) => addDays(today, i));
   return (
     <main className="week">
@@ -20,6 +21,12 @@ export function WeekView({ events, today, now }: Props) {
               <span className="dow">{i === 0 ? "Today" : d.toLocaleDateString([], { weekday: "short" })}</span>
               <span className="dnum">{d.getDate()}</span>
             </h3>
+            {mealsOn(meals, d).length > 0 && (
+              <div className="week-meal">
+                <span aria-hidden="true">🍽️ </span>
+                {mealsOn(meals, d).map((m) => m.meal).join(" + ")}
+              </div>
+            )}
             {list.length === 0 && <p className="empty">—</p>}
             {list.map((e) => {
               const past = !e.allDay && e.endDate < now;

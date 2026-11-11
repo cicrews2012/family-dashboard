@@ -21,6 +21,20 @@ export interface ApiResponse {
   events: ApiEvent[];
   fetchedAt: string;
   apiVersion?: string;
+  meals?: Meal[] | null;
+  mealsStatus?: string;
+}
+
+export interface Meal {
+  /** 0 = Sunday … 6 = Saturday, or null for "any night this week". */
+  day: number | null;
+  meal: string;
+  notes: string | null;
+}
+
+/** Meals for a given date, by its day of the week. */
+export function mealsOn(meals: Meal[] | null | undefined, d: Date): Meal[] {
+  return (meals ?? []).filter((m) => m.day === d.getDay());
 }
 
 export interface DashEvent extends ApiEvent {

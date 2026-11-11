@@ -1,6 +1,7 @@
 import { PEOPLE, UPCOMING_DAYS, type Person } from "../config.ts";
 import { colors } from "../theme.ts";
-import { addDays, dayHeading, eventsOnDay, kidIcon, timeLabel, type DashEvent } from "../logic.ts";
+import { addDays, dayHeading, eventsOnDay, kidIcon, timeLabel, type DashEvent, type Meal } from "../logic.ts";
+import { MealsStrip, TonightPill } from "./Meals.tsx";
 
 export type BoardMode = "today" | "upcoming";
 
@@ -9,6 +10,7 @@ interface Props {
   today: Date;
   mode: BoardMode;
   onMode: (m: BoardMode) => void;
+  meals?: Meal[] | null;
 }
 
 function EventItem({ e, day, person }: { e: DashEvent; day: Date; person: Person }) {
@@ -25,7 +27,7 @@ function EventItem({ e, day, person }: { e: DashEvent; day: Date; person: Person
   );
 }
 
-export function TodayBoard({ events, today, mode, onMode }: Props) {
+export function TodayBoard({ events, today, mode, onMode, meals }: Props) {
   const days = mode === "today" ? [today] : Array.from({ length: UPCOMING_DAYS }, (_, i) => addDays(today, i));
   const byDay = days.map((d) => ({ day: d, list: eventsOnDay(events, d) }));
 
@@ -36,6 +38,7 @@ export function TodayBoard({ events, today, mode, onMode }: Props) {
         <button className={mode === "upcoming" ? "on" : ""} onClick={() => onMode("upcoming")}>
           Next {UPCOMING_DAYS} days
         </button>
+        <TonightPill meals={meals} today={today} />
       </div>
       <div className="notes">
         {PEOPLE.map((p, i) => {
@@ -73,6 +76,7 @@ export function TodayBoard({ events, today, mode, onMode }: Props) {
           );
         })}
       </div>
+      <MealsStrip meals={meals} today={today} />
     </main>
   );
 }

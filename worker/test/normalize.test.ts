@@ -38,3 +38,29 @@ test("safeEqual", () => {
   assert.equal(safeEqual("abc", "abcd"), false);
   assert.equal(safeEqual("", ""), true);
 });
+
+import { normalizeMeals, parseDay } from "../src/index.ts";
+test("day names", () => {
+  assert.equal(parseDay("Monday"), 1);
+  assert.equal(parseDay("tues"), 2);
+  assert.equal(parseDay(" SAT "), 6);
+  assert.equal(parseDay(""), null);
+  assert.equal(parseDay("Any"), null);
+  assert.equal(parseDay("someday"), undefined);
+});
+test("meals rows skip header and empty nights", () => {
+  const meals = normalizeMeals([
+    ["Day", "Meal", "Notes"],
+    ["Sunday", "Tacos"],
+    ["Monday", "", ""],
+    ["Tuesday", "Chicken alfredo", "Kids get plain pasta"],
+    ["", "Breakfast for dinner"],
+    ["Someday", "Chili"],
+  ]);
+  assert.deepEqual(meals, [
+    { day: 0, meal: "Tacos", notes: null },
+    { day: 2, meal: "Chicken alfredo", notes: "Kids get plain pasta" },
+    { day: null, meal: "Breakfast for dinner", notes: null },
+    { day: null, meal: "Chili", notes: null },
+  ]);
+});

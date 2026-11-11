@@ -46,5 +46,14 @@ export function demoData(now = new Date()): ApiResponse {
     at(5, 10, 0, 120, "Birthday party", "L3"),
     allDay(6, "Trash day", null),
   );
-  return { labels, events, fetchedAt: now.toISOString() };
+  const meals = [
+    { day: 0, meal: "Pot roast", notes: null },
+    { day: 1, meal: "Tacos", notes: null },
+    { day: 2, meal: "Chicken alfredo", notes: "Kids get plain pasta" },
+    { day: 3, meal: "Breakfast for dinner", notes: null },
+    { day: 4, meal: "Burgers", notes: null },
+    { day: 5, meal: "Pizza night", notes: null },
+    { day: null, meal: "Leftovers", notes: null },
+  ];
+  return { labels, events, meals, mealsStatus: "ok", fetchedAt: now.toISOString() };
 }

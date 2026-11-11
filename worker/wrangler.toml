@@ -11,6 +11,8 @@ keep_vars = true
 [vars]
 CALENDAR_ID = "6089dc8bced1189d3098fcf7f6f71c9ee50ff19aa3af04862b9f01ed29585e2d@group.calendar.google.com"
 ALLOWED_ORIGINS = "https://cicrews2012.github.io"
+# "Family dashboard" Google Sheet with the Meals tab (not secret: reading it needs the Google sign-in)
+SHEET_ID = "1cKq2f3oAHxiUeatHflE4qqqImnOn7HMYKXPXINfkmng"
 
 [observability]
 enabled = true
