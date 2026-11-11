@@ -72,6 +72,7 @@ GitHub repo → Settings → Secrets and variables → Actions → **Variables**
 - Add events in Google Calendar and pick the person's color. Unlabeled events show under **Family**.
 - The screen refreshes every minute and right away when it wakes.
 - It dims between 9pm and 6am.
+- **Screen stays on** while the dashboard is open (on by default for tablets, off for phones). Tap the "Screen stays on / can sleep" button to change it per device. Press the power button to sleep it manually.
 
 ## Customizing
 Everything lives in `web/src/config.ts`: people, colors, label names, the Family fallback, refresh interval, night hours, and the kids' picture icons.

@@ -1,4 +1,5 @@
 import { countdown, formatTime, upNext, type DashEvent } from "../logic.ts";
+import { useStayAwake, wakeLockSupported } from "../wakeLock.ts";
 
 export type View = "today" | "week";
 
@@ -17,6 +18,7 @@ interface Props {
 export function Header({ now, events, view, onView, demo, loading, error, fetchedAt, onRefresh }: Props) {
   const next = upNext(events, now);
   const updated = fetchedAt ? formatTime(new Date(fetchedAt)) : null;
+  const [stayAwake, setStayAwake, awakeActive] = useStayAwake();
   return (
     <header className="header">
       <div className="when">
@@ -50,9 +52,21 @@ export function Header({ now, events, view, onView, demo, loading, error, fetche
             Week
           </button>
         </div>
-        <button className={`status${error ? " bad" : ""}`} onClick={onRefresh} title="Refresh now">
-          {demo ? "Demo data" : loading ? "Updating…" : error ? `Offline · ${updated ?? "no data"}` : updated ? `Updated ${updated}` : ""}
-        </button>
+        <div className="status-row">
+          {wakeLockSupported && (
+            <button
+              className={`status awake${stayAwake ? " on" : ""}`}
+              onClick={() => setStayAwake(!stayAwake)}
+              aria-pressed={stayAwake}
+              title={stayAwake ? "Screen stays on. Tap to let it sleep normally." : "Tap to keep the screen on"}
+            >
+              {stayAwake ? (awakeActive ? "Screen stays on" : "Screen stays on (tap screen)") : "Screen can sleep"}
+            </button>
+          )}
+          <button className={`status${error ? " bad" : ""}`} onClick={onRefresh} title="Refresh now">
+            {demo ? "Demo data" : loading ? "Updating…" : error ? `Offline · ${updated ?? "no data"}` : updated ? `Updated ${updated}` : ""}
+          </button>
+        </div>
       </div>
     </header>
   );
