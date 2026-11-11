@@ -22,6 +22,26 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npx tsc --noEmit
+      # Wrangler prints dashboard "Text" variables in this (public) log, so refuse
+      # to deploy while any credential is saved as Text instead of Secret.
+      - name: Check credentials are saved as Secrets
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          code=$(curl -sS -o settings.json -w '%{http_code}' \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/workers/scripts/family-dashboard-api/settings")
+          if [ "$code" = "404" ]; then echo "Worker not created yet; nothing to check."; rm -f settings.json; exit 0; fi
+          if [ "$code" != "200" ]; then echo "::error::Couldn't read the Worker's settings (HTTP $code), so not deploying."; rm -f settings.json; exit 1; fi
+          bad=$(jq -r '[.result.bindings[]? | select(.type == "plain_text") | .name
+                 | select(IN("GOOGLE_CLIENT_ID","GOOGLE_CLIENT_SECRET","GOOGLE_REFRESH_TOKEN","SETUP_KEY","DEVICE_KEYS"))] | join(", ")' settings.json)
+          rm -f settings.json
+          if [ -n "$bad" ]; then
+            echo "::error::Not deploying: these are saved as Text, not Secret, in Cloudflare: $bad. Delete them and re-add each with Type = Secret."
+            exit 1
+          fi
+          echo "All credentials are stored as Secrets."
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
