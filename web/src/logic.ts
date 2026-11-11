@@ -20,6 +20,7 @@ export interface ApiResponse {
   labels: Label[];
   events: ApiEvent[];
   fetchedAt: string;
+  apiVersion?: string;
 }
 
 export interface DashEvent extends ApiEvent {

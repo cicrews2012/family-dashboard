@@ -76,6 +76,11 @@ GitHub repo → Settings → Secrets and variables → Actions → **Variables**
 - It dims between 9pm and 6am.
 - **Screen stays on** while the dashboard is open (on by default for tablets, off for phones). Tap the "Screen stays on / can sleep" button to change it per device. Press the power button to sleep it manually.
 
+## Versions and updates
+- The version shows in the top right: `v23 · api 8` means dashboard build 23 and API build 8 (GitHub Actions run numbers).
+- Open screens check for a new dashboard build every 5 minutes and when they wake, and reload themselves. No need to re-add to the Home Screen.
+- `https://family-dashboard-api.<subdomain>.workers.dev/health` shows the API build.
+
 ## Customizing
 Everything lives in `web/src/config.ts`: people, colors, label names, the Family fallback, refresh interval, night hours, and the kids' picture icons.
 

@@ -32,6 +32,8 @@ jobs:
       - run: npm test
       - run: npm run build
         env:
+          VITE_APP_VERSION: ${{ github.run_number }}
+          VITE_APP_COMMIT: ${{ github.sha }}
           # Set under Settings -> Secrets and variables -> Actions (variable or secret)
           VITE_API_BASE: ${{ vars.VITE_API_BASE || secrets.VITE_API_BASE }}
       - uses: actions/upload-pages-artifact@v3

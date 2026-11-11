@@ -22,6 +22,7 @@ export interface Env {
   GOOGLE_REFRESH_TOKEN?: string;
   SETUP_KEY: string;
   DEVICE_KEYS: string; // comma-separated
+  API_VERSION?: string; // set by the deploy workflow
 }
 
 const SCOPE = "https://www.googleapis.com/auth/calendar.readonly";
@@ -67,7 +68,7 @@ export default {
       switch (url.pathname) {
         case "/":
         case "/health":
-          return text("ok");
+          return text(`ok ${env.API_VERSION ?? "dev"}`);
         case "/setup":
           return setupPage(url, env);
         case "/auth/start":
@@ -225,7 +226,7 @@ async function eventsHandler(req: Request, url: URL, env: Env): Promise<Response
     fetchLabels(env, accessToken),
     fetchEvents(env, accessToken, start, end),
   ]);
-  const body = JSON.stringify({ labels, events, fetchedAt: new Date().toISOString() });
+  const body = JSON.stringify({ labels, events, fetchedAt: new Date().toISOString(), apiVersion: env.API_VERSION ?? "dev" });
 
   eventCache.set(cacheKey, { at: Date.now(), body });
   if (eventCache.size > 50) eventCache.delete(eventCache.keys().next().value as string);

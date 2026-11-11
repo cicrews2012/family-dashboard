@@ -1,6 +1,7 @@
 import { countdown, formatTime, upNext, type DashEvent } from "../logic.ts";
 import { useStayAwake, wakeLockSupported } from "../wakeLock.ts";
 import { colors, useTheme } from "../theme.ts";
+import { APP_COMMIT, APP_VERSION } from "../version.ts";
 
 export type View = "today" | "week" | "month";
 
@@ -14,9 +15,10 @@ interface Props {
   error: string | null;
   fetchedAt: string | null;
   onRefresh: () => void;
+  apiVersion: string | null;
 }
 
-export function Header({ now, events, view, onView, demo, loading, error, fetchedAt, onRefresh }: Props) {
+export function Header({ now, events, view, onView, demo, loading, error, fetchedAt, onRefresh, apiVersion }: Props) {
   const next = upNext(events, now);
   const updated = fetchedAt ? formatTime(new Date(fetchedAt)) : null;
   const [stayAwake, setStayAwake, awakeActive] = useStayAwake();
@@ -74,6 +76,10 @@ export function Header({ now, events, view, onView, demo, loading, error, fetche
           <button className={`status${error ? " bad" : ""}`} onClick={onRefresh} title="Refresh now">
             {demo ? "Demo data" : loading ? "Updating…" : error ? `Offline · ${updated ?? "no data"}` : updated ? `Updated ${updated}` : ""}
           </button>
+          <span className="version" title={`Dashboard build ${APP_VERSION} (${APP_COMMIT})${apiVersion ? `, API build ${apiVersion}` : ""}`}>
+            v{APP_VERSION}
+            {apiVersion ? ` · api ${apiVersion}` : ""}
+          </span>
         </div>
       </div>
     </header>

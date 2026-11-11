@@ -8,6 +8,7 @@ import { TodayBoard } from "./components/TodayBoard.tsx";
 import { WeekView } from "./components/WeekView.tsx";
 import { MonthView } from "./components/MonthView.tsx";
 import { KeyPrompt } from "./components/KeyPrompt.tsx";
+import { useAutoUpdate } from "./version.ts";
 
 /** Read ?key=… or ?demo once, then tidy the address bar. */
 function initialAuth(): { key: string | null; demo: boolean } {
@@ -15,8 +16,9 @@ function initialAuth(): { key: string | null; demo: boolean } {
   const demo = params.has("demo");
   const urlKey = params.get("key");
   if (urlKey) saveKey(urlKey);
-  if (urlKey) {
+  if (urlKey || params.has("v")) {
     params.delete("key");
+    params.delete("v");
     const qs = params.toString();
     history.replaceState(null, "", location.pathname + (qs ? `?${qs}` : ""));
   }
@@ -48,6 +50,7 @@ export default function App() {
   const [monthOffset, setMonthOffset] = useState(0);
   const [monthData, setMonthData] = useState<{ key: string; data: ApiResponse } | null>(null);
   const now = useNow();
+  useAutoUpdate();
   const today = startOfDay(now);
   const dayKey = today.getTime(); // changes at midnight -> refetch
   const lastFetch = useRef(0);
@@ -165,6 +168,7 @@ export default function App() {
         loading={loading}
         error={error}
         fetchedAt={data?.fetchedAt ?? null}
+        apiVersion={data?.apiVersion ?? null}
         onRefresh={() => {
           load();
           loadMonth();
