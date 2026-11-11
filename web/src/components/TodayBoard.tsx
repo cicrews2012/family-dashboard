@@ -2,6 +2,7 @@ import { PEOPLE, UPCOMING_DAYS, type Person } from "../config.ts";
 import { colors } from "../theme.ts";
 import { addDays, dayHeading, eventsOnDay, kidIcon, timeLabel, type DashEvent, type Meal } from "../logic.ts";
 import { MealsStrip, TonightPill } from "./Meals.tsx";
+import { useOpenEvent } from "./EventDetails.tsx";
 
 export type BoardMode = "today" | "upcoming";
 
@@ -15,14 +16,17 @@ interface Props {
 
 function EventItem({ e, day, person }: { e: DashEvent; day: Date; person: Person }) {
   const icon = person.kid ? kidIcon(e.title) : null;
+  const open = useOpenEvent();
   return (
     <li>
+      <button className="ev-btn" onClick={() => open(e, day)}>
       <span className="t">{timeLabel(e, day)}</span>
       <span className="what">
         {icon && <span className="icon" aria-hidden="true">{icon}</span>}
         {e.title}
       </span>
-      {e.location && <span className="where">{e.location}</span>}
+      {e.location && <span className="where">📍 {e.location}</span>}
+      </button>
     </li>
   );
 }

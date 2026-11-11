@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useOpenEvent } from "./EventDetails.tsx";
 import { colors } from "../theme.ts";
 import { eventsOnDay, kidIcon, monthGrid, sameDay, timeLabel, type DashEvent } from "../logic.ts";
 
@@ -15,6 +16,7 @@ const MAX_CHIPS = 3;
 
 export function MonthView({ events, month, today, offset, onOffset }: Props) {
   const [picked, setPicked] = useState<Date | null>(null);
+  const open = useOpenEvent();
   const days = monthGrid(month);
   const selected = picked && picked.getMonth() === month.getMonth() ? picked : null;
   const list = selected && events ? eventsOnDay(events, selected) : [];
@@ -81,14 +83,14 @@ export function MonthView({ events, month, today, offset, onOffset }: Props) {
           {list.map((e) => {
             const icon = e.person.kid ? kidIcon(e.title) : null;
             return (
-              <div key={e.id} className="chip" style={{ background: colors(e.person).chip, color: colors(e.person).ink }}>
+              <button key={e.id} className="chip" onClick={() => open(e, selected)} style={{ background: colors(e.person).chip, color: colors(e.person).ink }}>
                 <span className="t">{timeLabel(e, selected)}</span>
                 <span className="what">
                   {icon && <span aria-hidden="true">{icon} </span>}
                   {e.title}
                 </span>
                 <span className="who">{e.person.name}</span>
-              </div>
+              </button>
             );
           })}
         </section>

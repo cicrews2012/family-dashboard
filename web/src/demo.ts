@@ -46,6 +46,12 @@ export function demoData(now = new Date()): ApiResponse {
     at(5, 10, 0, 120, "Birthday party", "L3"),
     allDay(6, "Trash day", null),
   );
+  const where: Record<string, string> = {
+    "Swim lesson": "Augusta Aquatics Center, 3155 Damascus Rd, Augusta, GA",
+    "Birthday party": "Pump It Up, 4230 Washington Rd, Evans, GA",
+    Dentist: "Smile Dental, 123 Example St",
+  };
+  for (const e of events) if (where[e.title]) e.location = where[e.title];
   const meals = [
     { day: 0, meal: "Pot roast", notes: null },
     { day: 1, meal: "Tacos", notes: null },

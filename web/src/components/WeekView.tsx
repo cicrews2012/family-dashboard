@@ -1,5 +1,6 @@
 import { WEEK_DAYS } from "../config.ts";
 import { colors } from "../theme.ts";
+import { useOpenEvent } from "./EventDetails.tsx";
 import { addDays, eventsOnDay, kidIcon, mealsOn, timeLabel, type DashEvent, type Meal } from "../logic.ts";
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function WeekView({ events, today, now, meals }: Props) {
+  const open = useOpenEvent();
   const days = Array.from({ length: WEEK_DAYS }, (_, i) => addDays(today, i));
   return (
     <main className="week">
@@ -32,8 +34,9 @@ export function WeekView({ events, today, now, meals }: Props) {
               const past = !e.allDay && e.endDate < now;
               const icon = e.person.kid ? kidIcon(e.title) : null;
               return (
-                <div
+                <button
                   key={`${e.id}-${d.getTime()}`}
+                  onClick={() => open(e, d)}
                   className={`chip${past ? " past" : ""}`}
                   style={{ background: colors(e.person).chip, color: colors(e.person).ink }}
                   title={`${e.person.name}: ${e.title}`}
@@ -44,7 +47,7 @@ export function WeekView({ events, today, now, meals }: Props) {
                     {e.title}
                   </span>
                   <span className="who">{e.person.name}</span>
-                </div>
+                </button>
               );
             })}
           </section>

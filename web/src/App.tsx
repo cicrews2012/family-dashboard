@@ -9,6 +9,7 @@ import { WeekView } from "./components/WeekView.tsx";
 import { MonthView } from "./components/MonthView.tsx";
 import { KeyPrompt } from "./components/KeyPrompt.tsx";
 import { useAutoUpdate } from "./version.ts";
+import { EventDetailsProvider } from "./components/EventDetails.tsx";
 
 /** Read ?key=… or ?demo once, then tidy the address bar. */
 function initialAuth(): { key: string | null; demo: boolean } {
@@ -172,6 +173,7 @@ export default function App() {
   }
 
   return (
+    <EventDetailsProvider>
     <div className={`app${night ? " night" : ""}`}>
       <Header
         now={now}
@@ -198,5 +200,6 @@ export default function App() {
         <MonthView events={monthEvents} month={monthStart} today={today} offset={monthOffset} onOffset={setMonthOffset} />
       )}
     </div>
+    </EventDetailsProvider>
   );
 }
