@@ -9,16 +9,18 @@ export interface Person {
   note: string;
   chip: string;
   ink: string;
+  /** Colors used in dark mode. */
+  dark: { note: string; chip: string; ink: string };
   /** Kids get picture icons on their events. */
   kid?: boolean;
 }
 
 export const PEOPLE: Person[] = [
-  { key: "christian", name: "Christian", labels: ["christian", "dad"], note: "#dff0d2", chip: "#c4e3ad", ink: "#1f4d14" },
-  { key: "savannah", name: "Savannah", labels: ["savannah", "mom"], note: "#fde0ea", chip: "#f8c1d4", ink: "#7a1740" },
-  { key: "emerson", name: "Emerson", labels: ["emerson"], note: "#ebe1fb", chip: "#d6c4f5", ink: "#43277a", kid: true },
-  { key: "twins", name: "Twins", labels: ["twins", "twin"], note: "#fff1b8", chip: "#fde38a", ink: "#5f4600", kid: true },
-  { key: "family", name: "Family", labels: ["family", "whole family", "everyone"], note: "#fde1dd", chip: "#f7bdb5", ink: "#7f1d17" },
+  { key: "christian", name: "Christian", labels: ["christian", "dad"], note: "#dff0d2", chip: "#c4e3ad", ink: "#1f4d14", dark: { note: "#1f3319", chip: "#2c4a22", ink: "#cfe9bd" } },
+  { key: "savannah", name: "Savannah", labels: ["savannah", "mom"], note: "#fde0ea", chip: "#f8c1d4", ink: "#7a1740", dark: { note: "#3a1a27", chip: "#552438", ink: "#f9cfe0" } },
+  { key: "emerson", name: "Emerson", labels: ["emerson"], note: "#ebe1fb", chip: "#d6c4f5", ink: "#43277a", dark: { note: "#2a2140", chip: "#3b2e5c", ink: "#ddd0f8" }, kid: true },
+  { key: "twins", name: "Twins", labels: ["twins", "twin"], note: "#fff1b8", chip: "#fde38a", ink: "#5f4600", dark: { note: "#3a3010", chip: "#54451a", ink: "#fbe7a0" }, kid: true },
+  { key: "family", name: "Family", labels: ["family", "whole family", "everyone"], note: "#fde1dd", chip: "#f7bdb5", ink: "#7f1d17", dark: { note: "#3d1b17", chip: "#58261f", ink: "#f8cdc6" } },
 ];
 
 /** Events with no label (or a label not listed above) go here. */

@@ -114,3 +114,18 @@ export function isNight(now: Date, start: number, end: number): boolean {
   const h = now.getHours();
   return start > end ? h >= start || h < end : h >= start && h < end;
 }
+
+/** Sunday-first weeks covering the whole month (4–6 rows). */
+export function monthGrid(monthStart: Date): Date[] {
+  const first = new Date(monthStart.getFullYear(), monthStart.getMonth(), 1);
+  const gridStart = addDays(first, -first.getDay());
+  const last = new Date(first.getFullYear(), first.getMonth() + 1, 0);
+  const gridEnd = addDays(last, 7 - last.getDay()); // exclusive, end of last week
+  const days: Date[] = [];
+  for (let d = gridStart; d < gridEnd; d = addDays(d, 1)) days.push(d);
+  return days;
+}
+
+export function sameDay(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}

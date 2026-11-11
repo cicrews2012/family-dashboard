@@ -71,6 +71,8 @@ GitHub repo → Settings → Secrets and variables → Actions → **Variables**
 ## Everyday use
 - Add events in Google Calendar and pick the person's color. Unlabeled events show under **Family**.
 - The screen refreshes every minute and right away when it wakes.
+- **Views:** Today (sticky notes), Week, and Month. In Month, use ‹ › to change months and tap a day to see its events.
+- **Theme:** tap the theme button to cycle Auto (follows the device's Light/Dark setting), Light, and Dark. Remembered per device.
 - It dims between 9pm and 6am.
 - **Screen stays on** while the dashboard is open (on by default for tablets, off for phones). Tap the "Screen stays on / can sleep" button to change it per device. Press the power button to sleep it manually.
 

@@ -66,3 +66,15 @@ test("week range helper", () => {
   const t = startOfDay(new Date(2026, 10, 10, 13));
   assert.equal(addDays(t, 7).getDate(), 17);
 });
+
+import { monthGrid } from "../src/logic.ts";
+test("month grid covers whole weeks, Sunday first", () => {
+  const nov = monthGrid(new Date(2026, 10, 1)); // Nov 2026 starts on Sunday
+  assert.equal(nov[0].getDate(), 1);
+  assert.equal(nov.length % 7, 0);
+  assert.equal(nov[0].getDay(), 0);
+  const last = nov[nov.length - 1];
+  assert.equal(last.getDay(), 6);
+  const feb = monthGrid(new Date(2026, 1, 1));
+  assert.ok(feb.length >= 28 && feb.length <= 42);
+});

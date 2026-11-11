@@ -2,10 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AuthError, fetchEvents, loadKey, saveKey } from "./api.ts";
 import { NIGHT_END, NIGHT_START, REFRESH_MS, WEEK_DAYS } from "./config.ts";
 import { demoData } from "./demo.ts";
-import { addDays, isNight, prepare, startOfDay, type ApiResponse } from "./logic.ts";
+import { addDays, isNight, monthGrid, prepare, startOfDay, type ApiResponse } from "./logic.ts";
 import { Header, type View } from "./components/Header.tsx";
 import { TodayBoard } from "./components/TodayBoard.tsx";
 import { WeekView } from "./components/WeekView.tsx";
+import { MonthView } from "./components/MonthView.tsx";
 import { KeyPrompt } from "./components/KeyPrompt.tsx";
 
 /** Read ?key=… or ?demo once, then tidy the address bar. */
@@ -44,6 +45,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<View>("today");
   const [boardOffset, setBoardOffset] = useState(0);
+  const [monthOffset, setMonthOffset] = useState(0);
+  const [monthData, setMonthData] = useState<{ key: string; data: ApiResponse } | null>(null);
   const now = useNow();
   const today = startOfDay(now);
   const dayKey = today.getTime(); // changes at midnight -> refetch
@@ -84,6 +87,37 @@ export default function App() {
     return () => clearInterval(id);
   }, [load]);
 
+  // Month view has its own fetch, for whichever month is on screen.
+  const monthStart = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+  const monthKey = `${monthStart.getFullYear()}-${monthStart.getMonth()}`;
+  const loadMonth = useCallback(async () => {
+    if (view !== "month") return;
+    const grid = monthGrid(monthStart);
+    if (demo) {
+      setMonthData({ key: monthKey, data: demoData(new Date()) });
+      return;
+    }
+    if (!key) return;
+    try {
+      const res = await fetchEvents(key, grid[0], addDays(grid[grid.length - 1], 1));
+      setMonthData({ key: monthKey, data: res });
+    } catch (e) {
+      if (!(e instanceof AuthError)) setError((e as Error).message || "Couldn't load the month");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, monthKey, key, demo]);
+
+  useEffect(() => {
+    loadMonth();
+    const id = setInterval(loadMonth, REFRESH_MS);
+    const wake = () => document.visibilityState === "visible" && loadMonth();
+    document.addEventListener("visibilitychange", wake);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", wake);
+    };
+  }, [loadMonth]);
+
   // Refresh right away when the screen wakes up or the network comes back.
   useEffect(() => {
     const maybe = () => {
@@ -100,6 +134,10 @@ export default function App() {
   }, [load]);
 
   const events = useMemo(() => (data ? prepare(data) : []), [data]);
+  const monthEvents = useMemo(
+    () => (monthData && monthData.key === monthKey ? prepare(monthData.data) : null),
+    [monthData, monthKey],
+  );
   const night = isNight(now, NIGHT_START, NIGHT_END);
 
   if (!key && !demo) {
@@ -127,7 +165,10 @@ export default function App() {
         loading={loading}
         error={error}
         fetchedAt={data?.fetchedAt ?? null}
-        onRefresh={load}
+        onRefresh={() => {
+          load();
+          loadMonth();
+        }}
       />
       {!data && !error && <p className="loading">Loading the calendar…</p>}
       {!data && error && <p className="loading">{error}</p>}
@@ -135,6 +176,9 @@ export default function App() {
         <TodayBoard events={events} day={addDays(today, boardOffset)} offset={boardOffset} onOffset={setBoardOffset} />
       )}
       {data && view === "week" && <WeekView events={events} today={today} now={now} />}
+      {data && view === "month" && (
+        <MonthView events={monthEvents} month={monthStart} today={today} offset={monthOffset} onOffset={setMonthOffset} />
+      )}
     </div>
   );
 }

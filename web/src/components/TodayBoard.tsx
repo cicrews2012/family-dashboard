@@ -1,4 +1,5 @@
 import { PEOPLE } from "../config.ts";
+import { colors } from "../theme.ts";
 import { eventsOnDay, kidIcon, timeLabel, type DashEvent } from "../logic.ts";
 
 interface Props {
@@ -23,7 +24,7 @@ export function TodayBoard({ events, day, offset, onOffset }: Props) {
             <section
               key={p.key}
               className="note"
-              style={{ background: p.note, color: p.ink, transform: `rotate(${i % 2 ? 0.8 : -0.8}deg)` }}
+              style={{ background: colors(p).note, color: colors(p).ink, transform: `rotate(${i % 2 ? 0.8 : -0.8}deg)` }}
             >
               <h2>{p.name}</h2>
               {mine.length === 0 ? (

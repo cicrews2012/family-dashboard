@@ -1,4 +1,5 @@
 import { WEEK_DAYS } from "../config.ts";
+import { colors } from "../theme.ts";
 import { addDays, eventsOnDay, kidIcon, timeLabel, type DashEvent } from "../logic.ts";
 
 interface Props {
@@ -27,7 +28,7 @@ export function WeekView({ events, today, now }: Props) {
                 <div
                   key={`${e.id}-${d.getTime()}`}
                   className={`chip${past ? " past" : ""}`}
-                  style={{ background: e.person.chip, color: e.person.ink }}
+                  style={{ background: colors(e.person).chip, color: colors(e.person).ink }}
                   title={`${e.person.name}: ${e.title}`}
                 >
                   <span className="t">{timeLabel(e, d)}</span>

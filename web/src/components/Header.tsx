@@ -1,7 +1,8 @@
 import { countdown, formatTime, upNext, type DashEvent } from "../logic.ts";
 import { useStayAwake, wakeLockSupported } from "../wakeLock.ts";
+import { colors, useTheme } from "../theme.ts";
 
-export type View = "today" | "week";
+export type View = "today" | "week" | "month";
 
 interface Props {
   now: Date;
@@ -19,6 +20,7 @@ export function Header({ now, events, view, onView, demo, loading, error, fetche
   const next = upNext(events, now);
   const updated = fetchedAt ? formatTime(new Date(fetchedAt)) : null;
   const [stayAwake, setStayAwake, awakeActive] = useStayAwake();
+  const [theme, cycleTheme] = useTheme();
   return (
     <header className="header">
       <div className="when">
@@ -30,7 +32,7 @@ export function Header({ now, events, view, onView, demo, loading, error, fetche
         {next ? (
           <>
             <span className="next-label">Up next</span>
-            <span className="next-dot" style={{ background: next.person.chip }} />
+            <span className="next-dot" style={{ background: colors(next.person).chip }} />
             <span className="next-title">
               {next.person.name}: {next.title}
             </span>
@@ -51,8 +53,14 @@ export function Header({ now, events, view, onView, demo, loading, error, fetche
           <button role="tab" aria-selected={view === "week"} className={view === "week" ? "on" : ""} onClick={() => onView("week")}>
             Week
           </button>
+          <button role="tab" aria-selected={view === "month"} className={view === "month" ? "on" : ""} onClick={() => onView("month")}>
+            Month
+          </button>
         </div>
         <div className="status-row">
+          <button className="status awake" onClick={cycleTheme} title="Change light or dark mode">
+            {theme === "auto" ? "Theme: auto" : theme === "dark" ? "Dark" : "Light"}
+          </button>
           {wakeLockSupported && (
             <button
               className={`status awake${stayAwake ? " on" : ""}`}
