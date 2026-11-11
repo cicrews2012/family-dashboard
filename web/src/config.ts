@@ -56,3 +56,6 @@ export const KID_ICONS: Array<[RegExp, string]> = [
   [/haircut/i, "✂️"],
   [/grandma|grandpa|nana|papa|mimi/i, "👵"],
 ];
+
+/** Where the weather in the header is for. */
+export const WEATHER = { latitude: 33.47, longitude: -82.01, unit: "fahrenheit" as "fahrenheit" | "celsius", place: "Augusta" };

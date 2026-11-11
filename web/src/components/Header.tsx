@@ -1,6 +1,7 @@
-import { countdown, formatTime, upNext, type DashEvent } from "../logic.ts";
+import { formatTime, type DashEvent } from "../logic.ts";
+import { describe, useWeather } from "../weather.ts";
 import { useStayAwake, wakeLockSupported } from "../wakeLock.ts";
-import { colors, useTheme } from "../theme.ts";
+import { useTheme } from "../theme.ts";
 import { APP_COMMIT, APP_VERSION } from "../version.ts";
 
 export type View = "today" | "week" | "month";
@@ -18,8 +19,9 @@ interface Props {
   apiVersion: string | null;
 }
 
-export function Header({ now, events, view, onView, demo, loading, error, fetchedAt, onRefresh, apiVersion }: Props) {
-  const next = upNext(events, now);
+export function Header({ now, view, onView, demo, loading, error, fetchedAt, onRefresh, apiVersion }: Props) {
+  const weather = useWeather(demo);
+  const evening = now.getHours() >= 18;
   const updated = fetchedAt ? formatTime(new Date(fetchedAt)) : null;
   const [stayAwake, setStayAwake, awakeActive] = useStayAwake();
   const [theme, cycleTheme] = useTheme();
@@ -30,22 +32,29 @@ export function Header({ now, events, view, onView, demo, loading, error, fetche
         <div className="date">{now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
       </div>
 
-      <div className="next">
-        {next ? (
-          <>
-            <span className="next-label">Up next</span>
-            <span className="next-dot" style={{ background: colors(next.person).chip }} />
-            <span className="next-title">
-              {next.person.name}: {next.title}
+      {weather ? (
+        <div className="next weather" aria-label="Weather">
+          <span className="wx-icon" aria-hidden="true">{describe(weather.code, now.getHours() >= 18 || now.getHours() < 6).icon}</span>
+          <span className="wx-temp">{weather.temp}°</span>
+          {evening ? (
+            <span className="wx-detail">
+              <b>Tomorrow</b> {describe(weather.tomorrow.code).icon} {weather.tomorrow.high}° / {weather.tomorrow.low}°
+              {weather.tomorrow.rainChance >= 40 && <> · {weather.tomorrow.rainChance}% rain</>}
             </span>
-            <span className="next-time">
-              {formatTime(next.startDate)} · {countdown(next.startDate, now)}
+          ) : (
+            <span className="wx-detail">
+              H {weather.high}° · L {weather.low}°
+              {weather.rainAt ? (
+                <> · <b>Rain around {formatTime(weather.rainAt).replace(":00", "")}</b></>
+              ) : weather.rainChance >= 30 ? (
+                <> · {weather.rainChance}% chance of rain</>
+              ) : null}
             </span>
-          </>
-        ) : (
-          <span className="next-label">Nothing else coming up today</span>
-        )}
-      </div>
+          )}
+        </div>
+      ) : (
+        <div />
+      )}
 
       <div className="controls">
         <div className="seg" role="tablist">

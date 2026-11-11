@@ -106,3 +106,23 @@ test("meals map to dates by weekday", () => {
   assert.deepEqual(mealsOn(meals, new Date(2026, 10, 12)), []);
   assert.deepEqual(mealsOn(null, new Date(2026, 10, 11)), []);
 });
+
+import { parse, describe as wx } from "../src/weather.ts";
+test("weather parsing finds the first rainy hour today", () => {
+  const now = new Date(2026, 10, 11, 13, 0);
+  const hours = Array.from({ length: 48 }, (_, i) => {
+    const d = new Date(2026, 10, 11, i);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T${String(d.getHours()).padStart(2, "0")}:00`;
+  });
+  const precip = hours.map((_, i) => (i === 9 ? 80 : i === 16 ? 60 : 10)); // 9am (past) and 4pm
+  const w = parse({
+    current: { temperature_2m: 63.6, weather_code: 3 },
+    hourly: { time: hours, precipitation_probability: precip },
+    daily: { temperature_2m_max: [70.4, 68], temperature_2m_min: [47.6, 44], precipitation_probability_max: [80, 10], weather_code: [61, 0] },
+  }, now);
+  assert.equal(w.temp, 64);
+  assert.equal(w.high, 70);
+  assert.equal(w.rainAt?.getHours(), 16);
+  assert.equal(w.tomorrow.code, 0);
+  assert.equal(wx(61).icon, "🌧️");
+});

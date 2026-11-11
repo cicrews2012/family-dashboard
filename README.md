@@ -76,6 +76,9 @@ GitHub repo → Settings → Secrets and variables → Actions → **Variables**
 - It dims between 9pm and 6am.
 - **Screen stays on** while the dashboard is open (on by default for tablets, off for phones). Tap the "Screen stays on / can sleep" button to change it per device. Press the power button to sleep it manually.
 
+## Weather
+The top middle shows Augusta's weather from [Open-Meteo](https://open-meteo.com) (free, no key): current temperature, today's high and low, and when rain is likely. After 6pm it switches to tomorrow's forecast. Change the location or units in `WEATHER` in `web/src/config.ts`.
+
 ## Meals
 The week's dinners come from the **Family dashboard** Google Sheet (ID in `worker/wrangler.toml` as `SHEET_ID`), on a tab named **Meals** (or the first tab):
 

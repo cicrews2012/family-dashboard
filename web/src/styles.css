@@ -61,6 +61,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
   max-width: 100%;
 }
 .next-label { color: var(--muted); font-weight: 700; }
+.weather { gap: 6px 12px; }
+.wx-icon { font-size: 26px; line-height: 1; }
+.wx-temp { font-size: 26px; font-weight: 800; line-height: 1; }
+.wx-detail { color: var(--muted); font-weight: 700; }
+.wx-detail b { color: var(--ink); font-weight: 800; }
 .next-dot { width: 12px; height: 12px; border-radius: 50%; }
 .next-title { font-weight: 800; }
 .next-time { color: var(--muted); }
