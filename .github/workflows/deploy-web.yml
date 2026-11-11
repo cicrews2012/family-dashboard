@@ -32,8 +32,8 @@ jobs:
       - run: npm test
       - run: npm run build
         env:
-          # Set under Settings -> Secrets and variables -> Actions -> Variables
-          VITE_API_BASE: ${{ vars.VITE_API_BASE }}
+          # Set under Settings -> Secrets and variables -> Actions (variable or secret)
+          VITE_API_BASE: ${{ vars.VITE_API_BASE || secrets.VITE_API_BASE }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: web/dist
