@@ -118,11 +118,13 @@ test("weather parsing finds the first rainy hour today", () => {
   const w = parse({
     current: { temperature_2m: 63.6, weather_code: 3 },
     hourly: { time: hours, precipitation_probability: precip },
-    daily: { temperature_2m_max: [70.4, 68], temperature_2m_min: [47.6, 44], precipitation_probability_max: [80, 10], weather_code: [61, 0] },
+    daily: { time: ["2026-11-11", "2026-11-12"], temperature_2m_max: [70.4, 68], temperature_2m_min: [47.6, 44], precipitation_probability_max: [80, 10], weather_code: [61, 0] },
   }, now);
   assert.equal(w.temp, 64);
   assert.equal(w.high, 70);
   assert.equal(w.rainAt?.getHours(), 16);
   assert.equal(w.tomorrow.code, 0);
+  assert.equal(w.days.length, 2);
+  assert.equal(w.days[1].date.getDate(), 12);
   assert.equal(wx(61).icon, "🌧️");
 });

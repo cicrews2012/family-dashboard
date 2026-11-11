@@ -66,6 +66,27 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .wx-temp { font-size: 26px; font-weight: 800; line-height: 1; }
 .wx-detail { color: var(--muted); font-weight: 700; }
 .wx-detail b { color: var(--ink); font-weight: 800; }
+.weather { font: inherit; color: inherit; cursor: pointer; }
+.wx-cond { font-weight: 800; }
+.detail.forecast { max-width: 580px; border-top: 0; }
+.forecast h2 { margin-top: 4px; }
+.fc { list-style: none; margin: 4px 0 0; padding: 0; }
+.fc li {
+  display: grid; grid-template-columns: 110px 34px minmax(0, 1fr) 64px 76px; align-items: center; gap: 8px;
+  padding: 10px 0; border-top: 1px solid var(--line); font-size: 16px;
+}
+.fc-day { font-weight: 800; }
+.fc-icon { font-size: 22px; text-align: center; }
+.fc-cond { color: var(--muted); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fc-rain { font-size: 14px; color: var(--muted); font-weight: 700; }
+.fc-rain.wet { color: var(--ink); }
+.fc-temps { text-align: right; white-space: nowrap; }
+.fc-temps b { font-weight: 800; }
+.fc-temps span { color: var(--muted); margin-left: 4px; }
+@media (max-width: 480px) {
+  .fc li { grid-template-columns: 1fr 30px 64px 70px; }
+  .fc-cond { display: none; }
+}
 .next-dot { width: 12px; height: 12px; border-radius: 50%; }
 .next-title { font-weight: 800; }
 .next-time { color: var(--muted); }

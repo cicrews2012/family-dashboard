@@ -9,7 +9,17 @@ export interface Weather {
   /** First hour today (from now) with a good chance of rain, if any. */
   rainAt: Date | null;
   rainChance: number; // today's max %
-  tomorrow: { high: number; low: number; code: number; rainChance: number };
+  tomorrow: DayForecast;
+  /** Today plus the next 6 days. */
+  days: DayForecast[];
+}
+
+export interface DayForecast {
+  date: Date;
+  high: number;
+  low: number;
+  code: number;
+  rainChance: number;
 }
 
 /** WMO weather codes -> emoji + short words. */
@@ -29,6 +39,7 @@ interface OpenMeteo {
   current: { temperature_2m: number; weather_code: number };
   hourly: { time: string[]; precipitation_probability: number[] };
   daily: {
+    time: string[];
     temperature_2m_max: number[];
     temperature_2m_min: number[];
     precipitation_probability_max: number[];
@@ -48,6 +59,16 @@ export function parse(data: OpenMeteo, now: Date): Weather {
     }
   }
   const d = data.daily;
+  const days: DayForecast[] = d.time.map((t, i) => {
+    const [y, m, day] = t.split("-").map(Number);
+    return {
+      date: new Date(y, m - 1, day),
+      high: Math.round(d.temperature_2m_max[i]),
+      low: Math.round(d.temperature_2m_min[i]),
+      code: d.weather_code[i],
+      rainChance: d.precipitation_probability_max[i] ?? 0,
+    };
+  });
   return {
     temp: Math.round(data.current.temperature_2m),
     code: data.current.weather_code,
@@ -55,22 +76,22 @@ export function parse(data: OpenMeteo, now: Date): Weather {
     low: Math.round(d.temperature_2m_min[0]),
     rainAt,
     rainChance: d.precipitation_probability_max[0] ?? 0,
-    tomorrow: {
-      high: Math.round(d.temperature_2m_max[1]),
-      low: Math.round(d.temperature_2m_min[1]),
-      code: d.weather_code[1],
-      rainChance: d.precipitation_probability_max[1] ?? 0,
-    },
+    tomorrow: days[1],
+    days,
   };
 }
 
 function demoWeather(now: Date): Weather {
   const rain = new Date(now);
   rain.setHours(17, 0, 0, 0);
-  return {
-    temp: 64, code: 2, high: 71, low: 48, rainAt: rain > now ? rain : null, rainChance: 60,
-    tomorrow: { high: 69, low: 45, code: 0, rainChance: 10 },
-  };
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const sample: Array<[number, number, number, number]> = [
+    [71, 48, 61, 60], [69, 45, 0, 10], [66, 44, 2, 0], [62, 41, 3, 20], [58, 39, 63, 80], [61, 40, 2, 30], [67, 46, 0, 0],
+  ];
+  const days = sample.map(([high, low, code, rainChance], i) => ({
+    date: new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), high, low, code, rainChance,
+  }));
+  return { temp: 64, code: 2, high: 71, low: 48, rainAt: rain > now ? rain : null, rainChance: 60, tomorrow: days[1], days };
 }
 
 const REFRESH = 15 * 60 * 1000;
@@ -94,7 +115,7 @@ export function useWeather(demo: boolean): Weather | null {
         daily: "temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code",
         temperature_unit: WEATHER.unit,
         timezone: "auto",
-        forecast_days: "2",
+        forecast_days: "7",
       });
       try {
         const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);

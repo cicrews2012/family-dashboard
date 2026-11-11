@@ -1,5 +1,5 @@
 import { formatTime, type DashEvent } from "../logic.ts";
-import { describe, useWeather } from "../weather.ts";
+import { WeatherBox } from "./WeatherBox.tsx";
 import { useStayAwake, wakeLockSupported } from "../wakeLock.ts";
 import { useTheme } from "../theme.ts";
 import { APP_COMMIT, APP_VERSION } from "../version.ts";
@@ -20,8 +20,6 @@ interface Props {
 }
 
 export function Header({ now, view, onView, demo, loading, error, fetchedAt, onRefresh, apiVersion }: Props) {
-  const weather = useWeather(demo);
-  const evening = now.getHours() >= 18;
   const updated = fetchedAt ? formatTime(new Date(fetchedAt)) : null;
   const [stayAwake, setStayAwake, awakeActive] = useStayAwake();
   const [theme, cycleTheme] = useTheme();
@@ -32,29 +30,7 @@ export function Header({ now, view, onView, demo, loading, error, fetchedAt, onR
         <div className="date">{now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
       </div>
 
-      {weather ? (
-        <div className="next weather" aria-label="Weather">
-          <span className="wx-icon" aria-hidden="true">{describe(weather.code, now.getHours() >= 18 || now.getHours() < 6).icon}</span>
-          <span className="wx-temp">{weather.temp}°</span>
-          {evening ? (
-            <span className="wx-detail">
-              <b>Tomorrow</b> {describe(weather.tomorrow.code).icon} {weather.tomorrow.high}° / {weather.tomorrow.low}°
-              {weather.tomorrow.rainChance >= 40 && <> · {weather.tomorrow.rainChance}% rain</>}
-            </span>
-          ) : (
-            <span className="wx-detail">
-              H {weather.high}° · L {weather.low}°
-              {weather.rainAt ? (
-                <> · <b>Rain around {formatTime(weather.rainAt).replace(":00", "")}</b></>
-              ) : weather.rainChance >= 30 ? (
-                <> · {weather.rainChance}% chance of rain</>
-              ) : null}
-            </span>
-          )}
-        </div>
-      ) : (
-        <div />
-      )}
+      <WeatherBox now={now} demo={demo} />
 
       <div className="controls">
         <div className="seg" role="tablist">
