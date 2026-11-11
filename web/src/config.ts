@@ -30,7 +30,7 @@ export const UNLABELED_PERSON = "family";
 export const REFRESH_MS = 60 * 1000;
 
 /** Days shown on the name cards in "Next days" mode, starting today. */
-export const UPCOMING_DAYS = 5;
+export const UPCOMING_DAYS = 7;
 
 /** Days shown in the week view, starting today. */
 export const WEEK_DAYS = 7;
